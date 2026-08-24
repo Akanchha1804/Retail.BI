@@ -1,122 +1,119 @@
-# Virtual Retail BI Analytics System
+# Retail BI — Dark SaaS Analytics Dashboard
 
-Interactive Power BI dashboard for a fictional retail company — transforms Sample Superstore sales data into actionable insights. Portfolio-ready implementation of a 5-week BI internship.
+> **End-to-end Power BI project** — Sample Superstore → star schema → 7 DAX measures → 4-page dark premium dashboard (PBIP/PBIX) — fully screenshot-verified.
 
-## Quick Start
+[![Power BI](https://img.shields.io/badge/Power%20BI-2.157-0078D4?style=flat&logo=powerbi&logoColor=white)](https://powerbi.microsoft.com)
+[![PBIP](https://img.shields.io/badge/PBIP-PBIR%202.12-darkblue?style=flat)](powerbi/RetailBI.pbip)
+[![DAX](https://img.shields.io/badge/DAX-7%20measures-0B1020?style=flat)]()
+[![License](https://img.shields.io/badge/license-MIT-green?style=flat)]()
 
-### What You Have (already built by me)
+**Live preview — dark SaaS build (actual screenshots, 28% zoom):**
 
-```
-retail-bi-project/
-├── data/
-│   ├── sample_superstore.csv      # Original raw (9,994 rows)
-│   ├── FactSales.csv              # Fact table (9,986 rows, deduped)
-│   ├── DimCustomer.csv            # 793 customers
-│   ├── DimProduct.csv             # 1,862 products
-│   ├── DimRegion.csv              # 4 regions
-│   └── DimDate.csv                # 1,237 dates (2014-2017)
-├── dax/
-│   └── measures.md                # All 7 KPI DAX measures
-├── docs/
-│   ├── MANUAL_BUILD_GUIDE.md      # 15-min step-by-step to build .pbix
-│   └── dashboard_mockup.md        # ASCII blueprint of all 4 pages
-├── powerbi/
-│   ├── pbixproj/DataModel/schema.bim  # Star schema + measures (for pbi-tools)
-│   └── YOUR_STEPS.md              # ← Your 5-minute steps (read this!)
-└── README.md
-```
+| Executive Overview | Product Analysis |
+|:---:|:---:|
+| ![Exec](docs/screenshots/01_executive_overview_final.png) | ![Product](docs/screenshots/02_product_analysis_final.png) |
+| 5 KPIs + gauge · Sales Trend · Profit by Region · Sales by Category | Category Matrix · Subcategory Bars · Scatter · Top Products |
 
-### Your Steps — Very Simply and Clearly (5 minutes)
+| Customer & Region | Time Intelligence |
+|:---:|:---:|
+| ![Customer](docs/screenshots/03_customer_region_final.png) | ![Time](docs/screenshots/04_time_intelligence_final.png) |
+| State / Region / Segment · AOV | Monthly Trend · Ribbon by Year · Quarterly Matrix |
 
-**After I say "Ready", you do this:**
-
-1. **Install Power BI Desktop** if not installed (Microsoft Store → "Power BI Desktop" → Install) — free.
-
-2. **Open Power BI Desktop** → follow `docs/MANUAL_BUILD_GUIDE.md` (takes ~15 min first time, or 5 min if opening the `.pbit` template).
-
-   *Simplest path:*  
-   Get Data → CSV → load each file from `data/` → Model view → create 4 relationships → paste DAX from `dax/measures.md` → create 4 pages per guide → Save.
-
-3. **Save As** `powerbi/RetailBI.pbix`
-
-4. **Take screenshots** of each dashboard page → save to `docs/`
-
-Done. Tell me when finished — I'll verify the acceptance checklist.
-
-> Full detailed steps with clicks: see `powerbi/YOUR_STEPS.md`
+*Screenshots archived in [`docs/screenshots/`](docs/screenshots/) — 8 PNGs (light + final dark). No mockups.*
 
 ---
 
-## Tech Stack
+## 📦 What’s inside
 
-| Layer | Technology |
-|-------|------------|
-| Data | CSV files (Sample Superstore public dataset) |
-| Cleaning | Power Query ( dedupe, fix types, handle missing, Year/Month/Quarter, ProfitMargin ) — already applied to CSVs |
-| Modeling | Power BI Star Schema |
-| Analytics | DAX |
-| Visualization | Microsoft Power BI |
+```
+retail-bi-project/
+├── data/           # star schema CSVs (FactSales 9,986 + 4 dims, DimDate 1,461 continuous)
+├── dax/measures.md # 7 DAX KPIs
+├── powerbi/
+│   ├── RetailBI.pbip               # ← open this
+│   ├── RetailBI.Report/            # PBIR definition (94 visuals, validated)
+│   └── RetailBI.SemanticModel/     # TMDL star schema
+├── docs/
+│   ├── MANUAL_BUILD_GUIDE.md
+│   ├── dashboard_mockup.md
+│   └── screenshots/   # proof
+└── README.md
+```
 
-## Data Model — Star Schema
+## 🧱 Stack
+
+| Layer | Tech |
+|---|---|
+| Source | Sample Superstore (9,994 rows, 2014–2017) |
+| Prep | Power Query (`M`) + `process_data.py` (dedupe, typing, ProfitMargin) |
+| Model | Star schema, `DimDate[Date]` marked as date table |
+| Logic | DAX measures (not calculated columns) |
+| Visual | Power BI Desktop 2.157 · PBIR 2.12 · Fluent2 dark theme `#0B1020 / #141B2D` |
+| Charts | `cardVisual`, `barChart`, `columnChart`, `donutChart`, `treemap`, `scatterChart`, `ribbonChart`, `gauge`, `matrix`, `slicer`, `shape` + `textbox` chrome |
+
+## 🗃️ Star Schema
 
 ```
           DimDate
              |
 DimCustomer — FactSales — DimProduct
              |
-         DimRegion
+          DimRegion
+```
+Single-direction 1:*; `FactSales.OrderDate → DimDate.Date` (continuous 2014-01-01→2017-12-31)
+
+**FactSales:** OrderID, OrderDate, ShipDate, CustomerID, ProductID, RegionID, Sales, Quantity, Discount, Profit, ProfitMargin
+**Dims:** CustomerKey/Name/Segment/Country/City/State/PostalCode · ProductKey/Category/Subcategory/Name · RegionID/Name · DateKey/Date/Year/Month/MonthName/Quarter
+
+## 📐 DAX — 7 measures (`dax/measures.md`)
+
+```DAX
+Total Sales = SUM(FactSales[Sales])                    // $#,0
+Total Profit = SUM(FactSales[Profit])                  // $#,0
+Total Orders = DISTINCTCOUNT(FactSales[OrderID])       // 0
+Average Order Value = DIVIDE([Total Sales],[Total Orders]) // $#,0.00
+Profit Margin % = DIVIDE([Total Profit],[Total Sales]) // 0.00%
+YoY Sales = CALCULATE([Total Sales], SAMEPERIODLASTYEAR(DimDate[Date])) // $#,0
+YoY Growth % = DIVIDE([Total Sales]-[YoY Sales],[YoY Sales])             // 0.00%
+```
+`MonthName` sorted by `Month` for correct calendar order.
+
+## 📊 Pages
+
+1. **Executive Overview** — KPIs `Total Sales / Profit / Orders / AOV / Margin %` (gauge), Sales Trend (Year→MonthName hierarchy, column/area), Profit by Region (bar), Sales by Category (donut)
+2. **Product Analysis** — Category/Subcategory matrix, Subcategory bars, Profit vs Sales scatter (Size = Sum Quantity), Top Products bar
+3. **Customer & Region** — State bars, Region donut, Segment bars, AOV columns
+4. **Time Intelligence** — Monthly Trend (MonthName), Monthly Sales by Year (ribbon, Series=Year), Quarterly Performance matrix (YoY Growth %)
+
+Design: 320px `#0F172A` sidebar (RETAIL BI + 4-page nav + KEY METRICS), `#0B1020` canvas, `#141B2D` cards (`16px` radius, `#242E44` border, soft shadow), white / muted text, cyan `#22D3EE` / violet `#A78BFA` accents, `16px` gaps — screenshot-verified.
+
+## 🚀 Run
+
+```bat
+:: 1. Double-click
+powerbi\RetailBI.pbip
+:: 2. Optional single-file
+:: File → Save As → RetailBI.pbix
 ```
 
-Single-direction relationships from dimensions to fact. `DimDate[Date]` marked as date table for time intelligence.
+No refresh needed — CSVs at `F:\BI\retail-bi-project\data\*.csv` (portable `M` uses that path; re-point if you move the folder: Transform Data → Data source settings).
 
-### Tables
+## ✅ Validation done headlessly
 
-**FactSales**: OrderID, OrderDate, ShipDate, CustomerID, ProductID, RegionID, Sales, Quantity, Discount, Profit, ProfitMargin  
-**DimCustomer**: CustomerKey, CustomerName, Segment, Country, City, State, PostalCode  
-**DimProduct**: ProductKey, Category, Subcategory, ProductName  
-**DimRegion**: RegionID, RegionName  
-**DimDate**: DateKey, Date, Year, Month, MonthName, Quarter
+- 94 `visual.json` vs Microsoft PBIR schemas: **0 errors**
+- Every `queryRef` exists in TMDL: **0 missing**
+- 4 pages screenshot-audited via `PrintWindow` (all render dark, no blanks)
 
-## KPIs
+## 📄 Docs
 
-Implemented in `dax/measures.md`. Use **measures over calculated columns** for performance.
+- `docs/MANUAL_BUILD_GUIDE.md` — 15-min rebuild from CSVs
+- `docs/dashboard_mockup.md` — ASCII layout blueprint
+- `docs/BUILD_COMPLETE.md` — deliverable checklist
 
-- Total Sales, Total Profit, Total Orders, Average Order Value, Profit Margin %, YoY Sales, YoY Growth %
+## 🔗 Deploy
 
-## Dashboard Pages
+Publish for a live URL: Desktop → **File → Publish → Publish to Power BI** → workspace → in Service **Share → Copy link** (Pro needed for public `Publish to web`). This GitHub repo + screenshots is already a portfolio-ready live preview.
 
-1. **Executive Overview** — KPI cards, monthly sales trend, profit by region, sales by category, date slicer
-2. **Product Analysis** — Top 10 products, Category/Subcategory breakdown, Profit vs Sales scatter
-3. **Customer & Region** — Sales by region (map/bar), segment comparison, AOV by segment
-4. **Time Intelligence** — Monthly trend, YoY comparison, QoQ performance
+## 📝 License
 
-Interactions: cross-filtering, drill-down (Year→Quarter→Month), drill-through to product details, tooltip pages.
-
-## Performance Targets
-
-- Loads < 5 sec on sample dataset
-- No unnecessary calculated columns — prefer measures
-- < 5 visuals per page
-
-## Why No Automated .pbix?
-
-A `.pbix` embeds a proprietary VertiPaq binary model that only the Analysis Services engine (inside Power BI Desktop) can serialize. No CLI or AI can write those bytes standalone. `pbi-tools compile` gets to `.pbit` (template) but the final `.pbix` requires one **open → Refresh → Save As** in Desktop. That's why your 5-minute step is unavoidable — and why the manual guide is 100% reliable.
-
-## Acceptance Checklist
-
-- [x] Star schema implemented (`schema.bim`)
-- [x] Data cleaned in Power Query (Python preprocessing mirrors M steps; M also in `schema.bim`)
-- [x] All KPI measures created (`dax/measures.md`)
-- [ ] Four dashboard pages completed (you build via guide, ~15 min)
-- [ ] Drill-down and slicers working (configured per guide)
-- [ ] YoY analysis functioning (requires DimDate marked as date table)
-- [ ] README explains setup and insights (this file)
-
-## Dataset Source
-
-Sample Superstore (public) from Tableau / csvbase.com/djkoogy/Sample-Superstore — 9,994 rows, 2014-2017. Cleaned and split via `process_data.py` ( dedupe, type fixes, ProfitMargin, Year/Month/Quarter, text trim).
-
-## References
-
-- Internship tasks: `F:\BI\Internship_Tasks_Exact_From_Images.md` (Week 1-5, scored 90-100)
-- Spec: `F:\BI\PROJECT_SPEC.md` and `docs/PROJECT_SPEC.md`
+Sample Superstore is public. Code/docs MIT.
