@@ -1,0 +1,185 @@
+{
+  "name": "RetailBI Custom",
+  "dataColors": [
+    "#0F4C75",
+    "#3282B8",
+    "#00B4D8",
+    "#F5853F",
+    "#FFC857",
+    "#2EC4B6",
+    "#E71D36",
+    "#011627",
+    "#BBE1FA",
+    "#FF6B6B"
+  ],
+  "background": "#F8F9FA",
+  "foreground": "#1B262C",
+  "tableAccent": "#0F4C75",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "title": [
+          {
+            "show": true,
+            "fontSize": 11,
+            "fontColor": {
+              "solid": {
+                "color": "#1B262C"
+              }
+            }
+          }
+        ],
+        "background": [
+          {
+            "show": true,
+            "color": {
+              "solid": {
+                "color": "#FFFFFF"
+              }
+            },
+            "transparency": 0
+          }
+        ],
+        "border": [
+          {
+            "show": true,
+            "color": {
+              "solid": {
+                "color": "#E9ECEF"
+              }
+            },
+            "radius": 12,
+            "width": 1
+          }
+        ],
+        "dropShadow": [
+          {
+            "show": true,
+            "preset": "Custom",
+            "angle": 90,
+            "shadowDistance": 6,
+            "shadowBlur": 12,
+            "shadowSpread": 0,
+            "transparency": 88
+          }
+        ],
+        "padding": [
+          {
+            "left": 14,
+            "top": 12,
+            "right": 14,
+            "bottom": 12
+          }
+        ]
+      }
+    },
+    "cardVisual": {
+      "*": {
+        "label": [
+          {
+            "fontSize": 9,
+            "fontColor": {
+              "solid": {
+                "color": "#6C757D"
+              }
+            },
+            "position": "aboveValue"
+          }
+        ],
+        "value": [
+          {
+            "fontSize": 22,
+            "fontColor": {
+              "solid": {
+                "color": "#0F4C75"
+              }
+            }
+          }
+        ],
+        "categoryLabels": [
+          {
+            "fontSize": 9,
+            "color": {
+              "solid": {
+                "color": "#6C757D"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "barChart": {
+      "*": {
+        "labels": [
+          {
+            "show": true,
+            "fontSize": 8,
+            "color": {
+              "solid": {
+                "color": "#495057"
+              }
+            }
+          }
+        ],
+        "categoryAxis": [
+          {
+            "labelColor": {
+              "solid": {
+                "color": "#495057"
+              }
+            },
+            "fontSize": 9
+          }
+        ],
+        "valueAxis": [
+          {
+            "labelColor": {
+              "solid": {
+                "color": "#6C757D"
+              }
+            },
+            "gridlineColor": {
+              "solid": {
+                "color": "#F1F3F5"
+              }
+            }
+          }
+        ],
+        "legend": [
+          {
+            "show": true,
+            "position": "BottomCenter"
+          }
+        ]
+      }
+    },
+    "columnChart": {
+      "*": {
+        "labels": [
+          {
+            "show": true,
+            "fontSize": 8
+          }
+        ],
+        "categoryAxis": [
+          {
+            "labelColor": {
+              "solid": {
+                "color": "#495057"
+              }
+            }
+          }
+        ],
+        "valueAxis": [
+          {
+            "gridlineColor": {
+              "solid": {
+                "color": "#F1F3F5"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

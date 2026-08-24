@@ -1,0 +1,218 @@
+{
+  "name": "RetailBI",
+  "compatibilityLevel": 1567,
+  "model": {
+    "culture": "en-US",
+    "dataAccessOptions": {
+      "legacyRedirects": true,
+      "returnErrorValuesAsNull": true
+    },
+    "tables": [
+      {
+        "name": "FactSales",
+        "columns": [
+          { "name": "OrderID", "dataType": "string", "sourceColumn": "OrderID" },
+          { "name": "OrderDate", "dataType": "dateTime", "sourceColumn": "OrderDate", "formatString": "m/d/yyyy" },
+          { "name": "ShipDate", "dataType": "dateTime", "sourceColumn": "ShipDate", "formatString": "m/d/yyyy" },
+          { "name": "CustomerID", "dataType": "string", "sourceColumn": "CustomerID" },
+          { "name": "ProductID", "dataType": "string", "sourceColumn": "ProductID" },
+          { "name": "RegionID", "dataType": "string", "sourceColumn": "RegionID" },
+          { "name": "Sales", "dataType": "double", "sourceColumn": "Sales", "formatString": "$#,0.00" },
+          { "name": "Quantity", "dataType": "int64", "sourceColumn": "Quantity" },
+          { "name": "Discount", "dataType": "double", "sourceColumn": "Discount", "formatString": "0.00%" },
+          { "name": "Profit", "dataType": "double", "sourceColumn": "Profit", "formatString": "$#,0.00" },
+          { "name": "ProfitMargin", "dataType": "double", "sourceColumn": "ProfitMargin", "formatString": "0.00%" }
+        ],
+        "measures": [
+          { "name": "Total Sales", "expression": "SUM(FactSales[Sales])", "formatString": "$#,0.00" },
+          { "name": "Total Profit", "expression": "SUM(FactSales[Profit])", "formatString": "$#,0.00" },
+          { "name": "Total Orders", "expression": "DISTINCTCOUNT(FactSales[OrderID])", "formatString": "#,0" },
+          { "name": "Average Order Value", "expression": "DIVIDE([Total Sales],[Total Orders])", "formatString": "$#,0.00" },
+          { "name": "Profit Margin %", "expression": "DIVIDE([Total Profit],[Total Sales])", "formatString": "0.00%" },
+          { "name": "Total Quantity", "expression": "SUM(FactSales[Quantity])", "formatString": "#,0" },
+          { "name": "YoY Sales", "expression": "CALCULATE([Total Sales], SAMEPERIODLASTYEAR(DimDate[Date]))", "formatString": "$#,0.00" },
+          { "name": "YoY Growth %", "expression": "DIVIDE([Total Sales]-[YoY Sales],[YoY Sales])", "formatString": "0.00%" }
+        ],
+        "partitions": [
+          {
+            "name": "FactSales",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(\"F:\\BI\\retail-bi-project\\data\\FactSales.csv\"),[Delimiter=\",\", Columns=11, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"OrderID\", type text}, {\"OrderDate\", type date}, {\"ShipDate\", type date}, {\"CustomerID\", type text}, {\"ProductID\", type text}, {\"RegionID\", type text}, {\"Sales\", type number}, {\"Quantity\", Int64.Type}, {\"Discount\", type number}, {\"Profit\", type number}, {\"ProfitMargin\", type number}}),",
+                "    #\"Removed Duplicates\" = Table.Distinct(#\"Changed Type\", {\"OrderID\", \"ProductID\"}),",
+                "    #\"Standardized Text\" = Table.TransformColumns(#\"Removed Duplicates\",{{\"RegionID\", Text.Trim, type text}})",
+                "in",
+                "    #\"Standardized Text\""
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "DimCustomer",
+        "columns": [
+          { "name": "CustomerKey", "dataType": "string", "sourceColumn": "CustomerKey" },
+          { "name": "CustomerName", "dataType": "string", "sourceColumn": "CustomerName" },
+          { "name": "Segment", "dataType": "string", "sourceColumn": "Segment" },
+          { "name": "Country", "dataType": "string", "sourceColumn": "Country" },
+          { "name": "City", "dataType": "string", "sourceColumn": "City" },
+          { "name": "State", "dataType": "string", "sourceColumn": "State" },
+          { "name": "PostalCode", "dataType": "string", "sourceColumn": "PostalCode" }
+        ],
+        "partitions": [
+          {
+            "name": "DimCustomer",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(\"F:\\BI\\retail-bi-project\\data\\DimCustomer.csv\"),[Delimiter=\",\", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"CustomerKey\", type text}, {\"CustomerName\", type text}, {\"Segment\", type text}, {\"Country\", type text}, {\"City\", type text}, {\"State\", type text}, {\"PostalCode\", type text}})",
+                "in",
+                "    #\"Changed Type\""
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "DimProduct",
+        "columns": [
+          { "name": "ProductKey", "dataType": "string", "sourceColumn": "ProductKey" },
+          { "name": "Category", "dataType": "string", "sourceColumn": "Category" },
+          { "name": "Subcategory", "dataType": "string", "sourceColumn": "Subcategory" },
+          { "name": "ProductName", "dataType": "string", "sourceColumn": "ProductName" }
+        ],
+        "partitions": [
+          {
+            "name": "DimProduct",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(\"F:\\BI\\retail-bi-project\\data\\DimProduct.csv\"),[Delimiter=\",\", Columns=4, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"ProductKey\", type text}, {\"Category\", type text}, {\"Subcategory\", type text}, {\"ProductName\", type text}})",
+                "in",
+                "    #\"Changed Type\""
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "DimRegion",
+        "columns": [
+          { "name": "RegionID", "dataType": "string", "sourceColumn": "RegionID" },
+          { "name": "RegionName", "dataType": "string", "sourceColumn": "RegionName" }
+        ],
+        "partitions": [
+          {
+            "name": "DimRegion",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(\"F:\\BI\\retail-bi-project\\data\\DimRegion.csv\"),[Delimiter=\",\", Columns=2, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"RegionID\", type text}, {\"RegionName\", type text}})",
+                "in",
+                "    #\"Changed Type\""
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "DimDate",
+        "columns": [
+          { "name": "DateKey", "dataType": "string", "sourceColumn": "DateKey" },
+          { "name": "Date", "dataType": "dateTime", "sourceColumn": "OrderDate", "formatString": "m/d/yyyy" },
+          { "name": "Year", "dataType": "int64", "sourceColumn": "Year" },
+          { "name": "Month", "dataType": "int64", "sourceColumn": "Month" },
+          { "name": "MonthName", "dataType": "string", "sourceColumn": "MonthName" },
+          { "name": "Quarter", "dataType": "int64", "sourceColumn": "Quarter" }
+        ],
+        "partitions": [
+          {
+            "name": "DimDate",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(\"F:\\BI\\retail-bi-project\\data\\DimDate.csv\"),[Delimiter=\",\", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"DateKey\", type text}, {\"OrderDate\", type date}, {\"Year\", Int64.Type}, {\"Month\", Int64.Type}, {\"MonthName\", type text}, {\"Quarter\", Int64.Type}}),",
+                "    #\"Renamed\" = Table.RenameColumns(#\"Changed Type\",{{\"OrderDate\", \"Date\"}})",
+                "in",
+                "    #\"Renamed\""
+              ]
+            }
+          }
+        ],
+        "annotations": [
+          { "name": "PBI_QueryOrder", "value": "[\"Date\"]" }
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "name": "DimCustomer_FactSales",
+        "fromTable": "DimCustomer",
+        "fromColumn": "CustomerKey",
+        "toTable": "FactSales",
+        "toColumn": "CustomerID",
+        "crossFilteringBehavior": "oneDirection",
+        "fromCardinality": "one",
+        "toCardinality": "many",
+        "isActive": true
+      },
+      {
+        "name": "DimProduct_FactSales",
+        "fromTable": "DimProduct",
+        "fromColumn": "ProductKey",
+        "toTable": "FactSales",
+        "toColumn": "ProductID",
+        "crossFilteringBehavior": "oneDirection",
+        "fromCardinality": "one",
+        "toCardinality": "many",
+        "isActive": true
+      },
+      {
+        "name": "DimRegion_FactSales",
+        "fromTable": "DimRegion",
+        "fromColumn": "RegionID",
+        "toTable": "FactSales",
+        "toColumn": "RegionID",
+        "crossFilteringBehavior": "oneDirection",
+        "fromCardinality": "one",
+        "toCardinality": "many",
+        "isActive": true
+      },
+      {
+        "name": "DimDate_FactSales",
+        "fromTable": "DimDate",
+        "fromColumn": "Date",
+        "toTable": "FactSales",
+        "toColumn": "OrderDate",
+        "crossFilteringBehavior": "oneDirection",
+        "fromCardinality": "one",
+        "toCardinality": "many",
+        "isActive": true
+      }
+    ],
+    "annotations": [
+      { "name": "PBI_ProhibitImplicitMeasures", "value": "1" }
+    ]
+  }
+}

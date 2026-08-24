@@ -1,0 +1,26 @@
+{
+  "layout": {
+    "sections": [
+      {
+        "name": "ExecutiveOverview",
+        "displayName": "Executive Overview",
+        "visualContainers": []
+      },
+      {
+        "name": "ProductAnalysis",
+        "displayName": "Product Analysis",
+        "visualContainers": []
+      },
+      {
+        "name": "CustomerRegion",
+        "displayName": "Customer & Region",
+        "visualContainers": []
+      },
+      {
+        "name": "TimeIntelligence",
+        "displayName": "Time Intelligence",
+        "visualContainers": []
+      }
+    ]
+  }
+}

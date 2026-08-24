@@ -1,0 +1,21 @@
+relationship 4e384fca-bfb7-4769-8163-ccd89f217bf8
+	joinOnDateBehavior: datePartOnly
+	fromColumn: FactSales.ShipDate
+	toColumn: LocalDateTable_3c3631df-e97a-4af3-8129-71b90a453232.Date
+
+relationship AutoDetected_935fbc7e-f9d0-4d2d-b185-82a4c482aaa4
+	fromColumn: FactSales.CustomerID
+	toColumn: DimCustomer.CustomerKey
+
+relationship AutoDetected_0aa40147-4407-4ce3-9982-ec0c40fd1947
+	fromColumn: FactSales.RegionID
+	toColumn: DimRegion.RegionID
+
+relationship AutoDetected_d9649cd0-e447-4933-ae1d-804b1e976fc4
+	fromColumn: FactSales.ProductID
+	toColumn: DimProduct.ProductKey
+
+relationship c05421c0-f150-5078-79c6-4bc09f816b3f
+	fromColumn: FactSales.OrderDate
+	toColumn: DimDate.Date
+

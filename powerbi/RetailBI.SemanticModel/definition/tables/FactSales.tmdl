@@ -1,0 +1,172 @@
+table FactSales
+	lineageTag: defd9733-c859-4c3a-84c0-f4e3952515b9
+
+	measure 'Total Sales' = SUM(FactSales[Sales])
+		formatString: \$#,0
+		lineageTag: 5081f99a-876b-4ce6-8467-aa3d9141d8cf
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Total Profit' = SUM(FactSales[Profit])
+		lineageTag: ab3472fb-3ab6-4ff1-a920-f550afd92b1e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Total Orders' = DISTINCTCOUNT(FactSales[OrderID])
+		formatString: 0
+		lineageTag: a9030e83-a615-498b-869b-93707c4b811d
+
+	measure 'Average Order Value' =
+			
+			DIVIDE([Total Sales], [Total Orders])
+		lineageTag: cdd6f09c-ec39-4ff2-b940-42e255e31c39
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Profit Margin %' =
+			
+			DIVIDE([Total Profit], [Total Sales])
+		formatString: 0.00%
+		lineageTag: 4f0b2886-492c-4069-93e8-b04657ed8437
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'YoY Sales' =
+			
+			CALCULATE(
+			    [Total Sales],
+			    SAMEPERIODLASTYEAR(DimDate[Date])
+			)
+		formatString: \$#,0
+		lineageTag: a1cef474-2cc3-43e8-bf3a-4aa8048428ec
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'YoY Growth %' =
+			
+			DIVIDE([Total Sales] - [YoY Sales], [YoY Sales])
+		formatString: 0.00%
+		lineageTag: 15bf10a7-e5d3-4c24-b7b5-82cd105d85ab
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column OrderID
+		dataType: string
+		lineageTag: 2489d7b9-9caf-4489-9f35-289b83d7934a
+		summarizeBy: none
+		sourceColumn: OrderID
+
+		annotation SummarizationSetBy = Automatic
+
+	column OrderDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 7c9c6263-1603-46e8-8d83-21a1033d28f6
+		summarizeBy: none
+		sourceColumn: OrderDate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column ShipDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 52541f57-148c-4bf4-a917-a1354754bf90
+		summarizeBy: none
+		sourceColumn: ShipDate
+
+		variation Variation
+			isDefault
+			relationship: 4e384fca-bfb7-4769-8163-ccd89f217bf8
+			defaultHierarchy: LocalDateTable_3c3631df-e97a-4af3-8129-71b90a453232.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column CustomerID
+		dataType: string
+		lineageTag: c38f7fbe-8d18-44ef-afbb-8754a4134f90
+		summarizeBy: none
+		sourceColumn: CustomerID
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductID
+		dataType: string
+		lineageTag: cb75e686-ee25-42e7-afa5-2ce80c217304
+		summarizeBy: none
+		sourceColumn: ProductID
+
+		annotation SummarizationSetBy = Automatic
+
+	column RegionID
+		dataType: string
+		lineageTag: 7e70d19f-43dd-4bab-99aa-b47c35201a89
+		summarizeBy: none
+		sourceColumn: RegionID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sales
+		dataType: double
+		lineageTag: e691c872-c7e0-4728-a3e0-660fcddad750
+		summarizeBy: sum
+		sourceColumn: Sales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: 75702f84-e3fb-43c8-985c-ff85de5a3e54
+		summarizeBy: sum
+		sourceColumn: Quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column Discount
+		dataType: double
+		lineageTag: ebf12670-400d-4268-964e-925990fd2d85
+		summarizeBy: sum
+		sourceColumn: Discount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Profit
+		dataType: double
+		lineageTag: 5ed523c1-67ba-40a5-8486-49eec05e27e6
+		summarizeBy: sum
+		sourceColumn: Profit
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ProfitMargin
+		dataType: double
+		lineageTag: d60d85b3-69e4-460b-b639-dd06572dccc9
+		summarizeBy: sum
+		sourceColumn: ProfitMargin
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition FactSales = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("F:\BI\retail-bi-project\data\FactSales.csv"),[Delimiter=",", Columns=11, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"OrderID", type text}, {"OrderDate", type date}, {"ShipDate", type date}, {"CustomerID", type text}, {"ProductID", type text}, {"RegionID", type text}, {"Sales", type number}, {"Quantity", Int64.Type}, {"Discount", type number}, {"Profit", type number}, {"ProfitMargin", type number}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

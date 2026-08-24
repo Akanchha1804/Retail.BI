@@ -1,0 +1,6 @@
+# Retail BI - Power BI
+cache.abf
+*.log
+*.tmp
+AppData/
+Traces/

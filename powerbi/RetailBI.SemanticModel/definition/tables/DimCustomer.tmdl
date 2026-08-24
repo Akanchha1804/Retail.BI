@@ -1,0 +1,72 @@
+table DimCustomer
+	lineageTag: 17a7c33a-98e3-421e-837d-e3d833e10bfe
+
+	column CustomerKey
+		dataType: string
+		lineageTag: c7535dd3-7003-4b1c-a745-566c0ee44579
+		summarizeBy: none
+		sourceColumn: CustomerKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column CustomerName
+		dataType: string
+		lineageTag: 15ed506a-6b70-4d56-9ca5-22754952aec9
+		summarizeBy: none
+		sourceColumn: CustomerName
+
+		annotation SummarizationSetBy = Automatic
+
+	column Segment
+		dataType: string
+		lineageTag: ccad0cb9-a0aa-44b1-bf0b-274ffe89692f
+		summarizeBy: none
+		sourceColumn: Segment
+
+		annotation SummarizationSetBy = Automatic
+
+	column Country
+		dataType: string
+		lineageTag: da299f3e-7aea-4620-a481-42599a13066a
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column City
+		dataType: string
+		lineageTag: 946237e9-0307-4d09-9e4d-112cfd4a472d
+		summarizeBy: none
+		sourceColumn: City
+
+		annotation SummarizationSetBy = Automatic
+
+	column State
+		dataType: string
+		lineageTag: 0d4ff7ce-0aff-4efb-899f-3f0459183163
+		summarizeBy: none
+		sourceColumn: State
+
+		annotation SummarizationSetBy = Automatic
+
+	column PostalCode
+		dataType: int64
+		formatString: 0
+		lineageTag: 893c18f4-5892-496c-950e-d3097d966268
+		summarizeBy: none
+		sourceColumn: PostalCode
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimCustomer = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("F:\BI\retail-bi-project\data\DimCustomer.csv"),[Delimiter=",", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"CustomerKey", type text}, {"CustomerName", type text}, {"Segment", type text}, {"Country", type text}, {"City", type text}, {"State", type text}, {"PostalCode", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+
